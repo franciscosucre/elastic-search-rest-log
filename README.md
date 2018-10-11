@@ -1,8 +1,16 @@
-# http-request-promise-simple
+# elastic-search-rest-log
 
 Dependency-less http methods for pure nodejs. The motive for this project was for have a simple logger with elastic search without depending on any driver o special software.
 
-# ElasticSearchRestLogger
+**How to install**
+----------
+```shell
+npm install --save elastic-search-rest-log
+```
+
+**ElasticSearchRestLogger**
+----------
+
 
 Logger class
 
