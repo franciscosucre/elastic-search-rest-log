@@ -1,0 +1,14 @@
+{
+  "name": "elastic-search-rest-log",
+  "version": "0.1.0",
+  "description": "Logger class for logging to elastic search without any driver dependencies",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/franciscosucre/elastic-search-rest-log"
+  },
+  "author": "franciscojsucreg@gmail.com",
+  "dependencies": {
+    "http-request-promise-simple": "^0.2.0"
+  }
+}
