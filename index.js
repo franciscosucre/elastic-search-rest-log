@@ -73,6 +73,11 @@ module.exports = class ElasticSearchRestLogger {
         this.logToConsole = opts.logToConsole;
     }
 
+    /**
+     * Creates the template and Index
+     *
+     * @returns
+     */
     async init() {
         const template = await this.verifyTemplateExists()
         const index = await this.verifyIndexExists();
@@ -137,6 +142,11 @@ module.exports = class ElasticSearchRestLogger {
         }
     }
 
+    /**
+     * Deletes the log template
+     *
+     * @returns
+     */
     async deleteTemplate() {
         return await deleteRequest({
             hostname: this.host,
@@ -189,6 +199,11 @@ module.exports = class ElasticSearchRestLogger {
         }
     }
 
+    /**
+     * Deletes the log index
+     *
+     * @returns
+     */
     async deleteIndex() {
         return await deleteRequest({
             hostname: this.host,
@@ -278,25 +293,31 @@ module.exports = class ElasticSearchRestLogger {
         }
     }
 
+    /**
+     * Level constant
+     *
+     * @readonly
+     */
     get INFO() {
         return 'INFO';
     }
 
+    /**
+     * Level constant
+     *
+     * @readonly
+     */
     get WARN() {
         return 'WARN';
     }
 
-    get ERROR() {
-        return 'ERROR';
-    }
-
     /**
-     * Obtains the logger used for the console output
+     * Level constant
      *
      * @readonly
      */
-    get logConsole() {
-        return console;
+    get ERROR() {
+        return 'ERROR';
     }
 
     /**
