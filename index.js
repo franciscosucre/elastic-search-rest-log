@@ -56,7 +56,7 @@ module.exports = class ElasticSearchRestLogger {
             day = now.getDate(),
             month = now.getMonth(),
             year = now.getFullYear();
-        return `log-${this.logType}-${day}-${month}-${year}`;
+        return `log-${this.logType}-${day}-${month + 1}-${year}`;
     }
 
     /**
