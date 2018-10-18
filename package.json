@@ -1,6 +1,6 @@
 {
   "name": "elastic-search-rest-log",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Logger class for logging to elastic search without any driver dependencies",
   "scripts": {},
   "repository": {
