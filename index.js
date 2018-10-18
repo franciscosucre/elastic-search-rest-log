@@ -34,7 +34,7 @@ module.exports = class ElasticSearchRestLogger {
             host: 'localhost',
             port: 9200,
             console: console,
-            logToConsole: true,
+            logToConsole: false,
             logType: 'generic',
             logIndexTemplateName: 'log_template',
             logIndexTemplate: {
@@ -336,7 +336,7 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     async info(data) {
-        if (this.console) this.consoleLogInfo(data);
+        if (this.logToConsole) this.consoleLogInfo(data);
         return await this.log(this.INFO, data);
     }
 
