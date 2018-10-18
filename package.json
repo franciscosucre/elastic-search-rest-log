@@ -1,6 +1,6 @@
 {
   "name": "elastic-search-rest-log",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Logger class for logging to elastic search without any driver dependencies",
   "scripts": {
     "test": "set NODE_ENV=test&& mocha"
