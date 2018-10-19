@@ -26,6 +26,7 @@ module.exports = class ElasticSearchRestLogger {
      * @param {Boolean} opts.logToConsole Defines if the logger should print to the console in parallel to elastic search
      * @param {Boolean} opts.console logger object with the info, warn and error methods. The user is given the option so 
      * it can override the default console
+     * @param {Boolean} opts.showDataOnConsole Defines if the console must print the data object
      * @memberof ElasticSearchRestWinstonTransport
      */
     constructor(opts) {
@@ -35,6 +36,7 @@ module.exports = class ElasticSearchRestLogger {
             port: 9200,
             console: console,
             logToConsole: false,
+            showDataOnConsole: false,
             logType: 'generic',
             logIndexTemplateName: 'log_template',
             logIndexTemplate: {
@@ -71,13 +73,9 @@ module.exports = class ElasticSearchRestLogger {
         this.logIndexTemplateName = opts.logIndexTemplateName;
         this.console = opts.console;
         this.logToConsole = opts.logToConsole;
+        this.showDataOnConsole = opts.showDataOnConsole;
     }
 
-    /**
-     * Creates the template and Index
-     *
-     * @returns
-     */
     async init() {
         const template = await this.verifyTemplateExists()
         const index = await this.verifyIndexExists();
@@ -142,11 +140,6 @@ module.exports = class ElasticSearchRestLogger {
         }
     }
 
-    /**
-     * Deletes the log template
-     *
-     * @returns
-     */
     async deleteTemplate() {
         return await deleteRequest({
             hostname: this.host,
@@ -199,11 +192,6 @@ module.exports = class ElasticSearchRestLogger {
         }
     }
 
-    /**
-     * Deletes the log index
-     *
-     * @returns
-     */
     async deleteIndex() {
         return await deleteRequest({
             hostname: this.host,
@@ -274,12 +262,23 @@ module.exports = class ElasticSearchRestLogger {
                     timestamp: new Date()
                 }
             } else {
-                postData = Object.assign(data, {
+                postData = Object.assign({
+                    message: '',
                     level: level,
                     timestamp: new Date()
-                })
+                }, data)
             }
-
+            /* If we have console loggin enabled we log to the console */
+            if (this.logToConsole) {
+                if (level === this.INFO) {
+                    this.consoleLogInfo(postData);
+                } else if (level === this.WARN) {
+                    this.consoleLogWarn(postData);
+                } else if (level === this.ERROR) {
+                    this.consoleLogError(postData);
+                }
+            }
+            /* We log to elastic search */
             return await post({
                 hostname: this.host,
                 path: `/${this.getIndexName()}/logs`,
@@ -293,31 +292,31 @@ module.exports = class ElasticSearchRestLogger {
         }
     }
 
-    /**
-     * Level constant
-     *
-     * @readonly
-     */
     get INFO() {
         return 'INFO';
     }
 
-    /**
-     * Level constant
-     *
-     * @readonly
-     */
     get WARN() {
         return 'WARN';
     }
 
-    /**
-     * Level constant
-     *
-     * @readonly
-     */
     get ERROR() {
         return 'ERROR';
+    }
+
+    /**
+     * Takes the data object and builds the string to be printed to the console
+     *
+     * @param {*} data
+     * @param {String} data.message
+     * @returns
+     */
+    buildConsoleMessage(data) {
+        if (this.showDataOnConsole) {
+            return `${new Date().toISOString()} ${this.INFO}: ${data.message} --> data: ${JSON.stringify(data)}`;
+        } else {
+            return `${new Date().toISOString()} ${this.INFO}: ${data.message}`;
+        }
     }
 
     /**
@@ -327,7 +326,7 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     consoleLogInfo(data) {
-        this.console.info(`${new Date().toISOString()} ${this.INFO}: data: ${JSON.stringify(data)}`);
+        this.console.info(this.buildConsoleMessage(data));
     }
 
     /**
@@ -337,7 +336,7 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     consoleLogWarn(data) {
-        this.console.warn(`${new Date().toISOString()} ${this.WARN}: data: ${JSON.stringify(data)}`);
+        this.console.warn(this.buildConsoleMessage(data));
     }
 
     /**
@@ -347,9 +346,9 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     consoleLogError(data) {
-        this.console.error(`${new Date().toISOString()} ${this.ERROR}: data: ${JSON.stringify(data)}`);
+        this.console.error(this.buildConsoleMessage(data));
     }
-    
+
     /**
      * Alias for the log method with a info level
      *
@@ -357,7 +356,6 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     async info(data) {
-        if (this.logToConsole) this.consoleLogInfo(data);
         return await this.log(this.INFO, data);
     }
 
@@ -368,7 +366,6 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     async warn(data) {
-        if (this.logToConsole) this.consoleLogWarn(data);
         return await this.log(this.WARN, data);
     }
 
@@ -379,7 +376,6 @@ module.exports = class ElasticSearchRestLogger {
      * @returns
      */
     async error(data) {
-        if (this.logToConsole) this.consoleLogError(data);
         return await this.log(this.ERROR, data);
     }
 
